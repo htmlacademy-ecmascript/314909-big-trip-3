@@ -4,22 +4,33 @@ import EditFormView from '../view/edit-form-view.js';
 import CreateFormView from '../view/create-form-view.js';
 import PointView from '../view/point-view.js';
 
-const POINT_COUNT = 3;
-
 export default class TripPresenter {
   pointListComponent = new PointListView();
 
-  constructor({container}) {
+  constructor({container, pointsModel}) {
     this.container = container;
+    this.pointsModel = pointsModel;
   }
 
   init() {
+    this.points = [...this.pointsModel.getPoints()];
+    const [firstPoint] = this.points;
+
     render(this.pointListComponent, this.container);
-    render(new EditFormView(), this.pointListComponent.getElement());
+    render(new EditFormView({
+      point: firstPoint,
+      destination: this.pointsModel.getDestinationById(firstPoint.destination),
+      offers: this.pointsModel.getOffersByType(firstPoint.type),
+      destinations: this.pointsModel.getDestinations(),
+    }), this.pointListComponent.getElement());
     render(new CreateFormView(), this.pointListComponent.getElement());
 
-    for (let i = 0; i < POINT_COUNT; i++) {
-      render(new PointView(), this.pointListComponent.getElement());
+    for (const point of this.points) {
+      render(new PointView({
+        point,
+        destination: this.pointsModel.getDestinationById(point.destination),
+        offers: this.pointsModel.getOffersByType(point.type),
+      }), this.pointListComponent.getElement());
     }
   }
 }
