@@ -89,8 +89,21 @@ function createDetailsTemplate(offersTemplate, destinationTemplate) {
   );
 }
 
+function createRollupButtonTemplate(isNewPoint) {
+  if (isNewPoint) {
+    return '';
+  }
+
+  return (
+    `<button class="event__rollup-btn" type="button">
+      <span class="visually-hidden">Open event</span>
+    </button>`
+  );
+}
+
 function createEditFormTemplate(point, destination, offers, destinations) {
   const {type, dateFrom, dateTo, basePrice} = point;
+  const isNewPoint = !point.id;
 
   return (
     `<li class="trip-events__item">
@@ -138,10 +151,8 @@ function createEditFormTemplate(point, destination, offers, destinations) {
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Delete</button>
-          <button class="event__rollup-btn" type="button">
-            <span class="visually-hidden">Open event</span>
-          </button>
+          <button class="event__reset-btn" type="reset">${isNewPoint ? 'Cancel' : 'Delete'}</button>
+          ${createRollupButtonTemplate(isNewPoint)}
         </header>
         ${createDetailsTemplate(createOffersTemplate(offers, point.offers), createDestinationTemplate(destination))}
       </form>
@@ -169,7 +180,7 @@ export default class EditFormView extends AbstractView {
     this.element.querySelector('form')
       .addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#rollupButtonClickHandler);
+      ?.addEventListener('click', this.#rollupButtonClickHandler);
   }
 
   get template() {

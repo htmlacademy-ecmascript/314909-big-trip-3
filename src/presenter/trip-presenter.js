@@ -2,6 +2,10 @@ import {render, replace} from '../framework/render.js';
 import PointListView from '../view/point-list-view.js';
 import PointView from '../view/point-view.js';
 import EditFormView from '../view/edit-form-view.js';
+import SortView from '../view/sort-view.js';
+import EmptyListView from '../view/empty-list-view.js';
+import {generateSort} from '../mock/sort.js';
+import {FilterType, SortType} from '../const.js';
 
 export default class TripPresenter {
   #container = null;
@@ -19,6 +23,15 @@ export default class TripPresenter {
   init() {
     this.#points = [...this.#pointsModel.points];
 
+    if (this.#points.length === 0) {
+      render(new EmptyListView({filterType: FilterType.EVERYTHING}), this.#container);
+      return;
+    }
+
+    render(new SortView({
+      sortItems: generateSort(),
+      currentSortType: SortType.DAY,
+    }), this.#container);
     render(this.#pointListComponent, this.#container);
 
     for (const point of this.#points) {
