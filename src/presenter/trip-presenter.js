@@ -5,7 +5,16 @@ import EmptyListView from '../view/empty-list-view.js';
 import PointPresenter from './point-presenter.js';
 import {generateSort} from '../mock/sort.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
-import {FilterType, SortType, TimeLimit, UpdateType, UserAction} from '../const.js';
+import {
+  EmptyListMessage,
+  FailedLoadingMessage,
+  FilterType,
+  LoadingMessage,
+  SortType,
+  TimeLimit,
+  UpdateType,
+  UserAction,
+} from '../const.js';
 import {filter, sort} from '../utils.js';
 
 export default class TripPresenter {
@@ -44,11 +53,20 @@ export default class TripPresenter {
 
   init() {
     if (!this.#isInitialized) {
-      this.#container.querySelector('.trip-events__msg')?.remove();
+      remove(this.#emptyListComponent);
+      this.#emptyListComponent = null;
       this.#isInitialized = true;
     }
 
     this.#renderTrip();
+  }
+
+  showLoading() {
+    this.#showMessage(LoadingMessage);
+  }
+
+  showLoadingError() {
+    this.#showMessage(FailedLoadingMessage);
   }
 
   createPoint() {
@@ -62,6 +80,7 @@ export default class TripPresenter {
 
     if (this.#pointListComponent === null) {
       remove(this.#emptyListComponent);
+      this.#emptyListComponent = null;
       this.#pointListComponent = new PointListView();
       render(this.#pointListComponent, this.#container);
     }
@@ -80,8 +99,7 @@ export default class TripPresenter {
     const points = filter[this.#filterModel.filter](this.#pointsModel.points);
 
     if (points.length === 0) {
-      this.#emptyListComponent = new EmptyListView({filterType: this.#filterModel.filter ?? FilterType.EVERYTHING});
-      render(this.#emptyListComponent, this.#container);
+      this.#showMessage(EmptyListMessage[this.#filterModel.filter ?? FilterType.EVERYTHING]);
       return;
     }
 
@@ -94,15 +112,22 @@ export default class TripPresenter {
 
     render(this.#sortComponent, this.#container);
     render(this.#pointListComponent, this.#container);
-    this.#renderPoints(points);
+    this.#renderPoints();
   }
 
-  #renderPoints(points) {
+  #renderPoints() {
+    const points = filter[this.#filterModel.filter](this.#pointsModel.points);
     const sortedPoints = sort[this.#currentSortType](points);
 
     for (const point of sortedPoints) {
       this.#renderPoint(point);
     }
+  }
+
+  #showMessage(message) {
+    remove(this.#emptyListComponent);
+    this.#emptyListComponent = new EmptyListView({message});
+    render(this.#emptyListComponent, this.#container);
   }
 
   #clearPointList() {

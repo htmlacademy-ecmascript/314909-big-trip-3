@@ -50,4 +50,19 @@ const EmptyListMessage = {
   [FilterType.PAST]: 'There are no past events now',
 };
 
-export {POINT_TYPES, DateFormat, FilterType, SortType, DISABLED_SORT_TYPES, UserAction, UpdateType, TimeLimit, EmptyListMessage};
+const LoadingMessage = 'Loading...';
+const FailedLoadingMessage = 'Failed to load latest route information';
+
+export {
+  POINT_TYPES,
+  DateFormat,
+  FilterType,
+  SortType,
+  DISABLED_SORT_TYPES,
+  UserAction,
+  UpdateType,
+  TimeLimit,
+  EmptyListMessage,
+  LoadingMessage,
+  FailedLoadingMessage,
+};

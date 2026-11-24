@@ -7,20 +7,25 @@ const SortLabel = {
 };
 
 function createSortItemTemplate({type, isDisabled}, currentSortType) {
-  return (
-    `<div class="trip-sort__item  trip-sort__item--${type}">
-      <input id="sort-${type}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="${type}" data-sort-type="${type}" ${type === currentSortType ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
-      <label class="trip-sort__btn" for="sort-${type}">${SortLabel[type] ?? capitalize(type)}</label>
-    </div>`
-  );
+  return /* HTML */ `<div class="trip-sort__item  trip-sort__item--${type}">
+    <input
+      id="sort-${type}"
+      class="trip-sort__input  visually-hidden"
+      type="radio"
+      name="trip-sort"
+      value="${type}"
+      data-sort-type="${type}"
+      ${type === currentSortType ? 'checked' : ''}
+      ${isDisabled ? 'disabled' : ''}
+    />
+    <label class="trip-sort__btn" for="sort-${type}">${SortLabel[type] ?? capitalize(type)}</label>
+  </div>`;
 }
 
 function createSortTemplate(sortItems, currentSortType) {
-  return (
-    `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
-      ${sortItems.map((sortItem) => createSortItemTemplate(sortItem, currentSortType)).join('')}
-    </form>`
-  );
+  return /* HTML */ `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
+    ${sortItems.map((sortItem) => createSortItemTemplate(sortItem, currentSortType)).join('')}
+  </form>`;
 }
 
 export default class SortView extends AbstractView {

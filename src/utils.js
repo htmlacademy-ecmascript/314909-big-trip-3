@@ -1,8 +1,6 @@
 import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-import {DateFormat, FilterType, SortType} from './const.js';
-
-dayjs.extend(duration);
+import he from 'he';
+import {DateFormat, FilterType, POINT_TYPES, SortType} from './const.js';
 
 const MINUTES_IN_HOUR = 60;
 const MINUTES_IN_DAY = 1440;
@@ -12,8 +10,11 @@ function formatDate(date, format) {
   return date ? dayjs(date).format(format) : '';
 }
 
-function getDuration(dateFrom, dateTo) {
-  const minutes = dayjs(dateTo).diff(dateFrom, 'minute');
+function getDurationInMinutes(dateFrom, dateTo) {
+  return dayjs(dateTo).diff(dateFrom, 'minute');
+}
+
+function formatDuration(minutes) {
   const pointDuration = dayjs.duration(minutes, 'minutes');
 
   if (minutes < MINUTES_IN_HOUR) {
@@ -31,6 +32,14 @@ function capitalize(text) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
+function encodeHtml(value) {
+  return he.encode(String(value ?? ''));
+}
+
+function getValidPointType(type) {
+  return POINT_TYPES.includes(type) ? type : POINT_TYPES[0];
+}
+
 function isPointFuture({dateFrom}) {
   return dayjs(dateFrom).isAfter(dayjs());
 }
@@ -45,10 +54,6 @@ function isPointPast({dateTo}) {
   return dayjs(dateTo).isBefore(dayjs());
 }
 
-function getPointDuration({dateFrom, dateTo}) {
-  return dayjs(dateTo).diff(dayjs(dateFrom));
-}
-
 function getTripRoute(destinations) {
   if (destinations.length <= MAX_VISIBLE_DESTINATIONS) {
     return destinations.join(' — ');
@@ -58,9 +63,7 @@ function getTripRoute(destinations) {
 }
 
 function sortPointsByDate(points) {
-  return [...points].sort((pointA, pointB) => (
-    dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom))
-  ));
+  return [...points].sort((pointA, pointB) => dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom)));
 }
 
 function getTripDates(points) {
@@ -102,13 +105,26 @@ const filter = {
 };
 
 const sort = {
-  [SortType.DAY]: (points) => points.sort((pointA, pointB) => (
-    dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom))
-  )),
-  [SortType.TIME]: (points) => points.sort((pointA, pointB) => (
-    getPointDuration(pointB) - getPointDuration(pointA)
-  )),
+  [SortType.DAY]: (points) => points.sort((pointA, pointB) => dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom))),
+  [SortType.TIME]: (points) =>
+    points.sort(
+      (pointA, pointB) =>
+        getDurationInMinutes(pointB.dateFrom, pointB.dateTo) - getDurationInMinutes(pointA.dateFrom, pointA.dateTo),
+    ),
   [SortType.PRICE]: (points) => points.sort((pointA, pointB) => pointB.basePrice - pointA.basePrice),
 };
 
-export {formatDate, getDuration, capitalize, getTripRoute, getTripDates, getTotalPrice, sortPointsByDate, filter, sort};
+export {
+  formatDate,
+  getDurationInMinutes,
+  formatDuration,
+  capitalize,
+  encodeHtml,
+  getValidPointType,
+  getTripRoute,
+  getTripDates,
+  getTotalPrice,
+  sortPointsByDate,
+  filter,
+  sort,
+};

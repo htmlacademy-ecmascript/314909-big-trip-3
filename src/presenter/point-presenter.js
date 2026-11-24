@@ -85,14 +85,17 @@ export default class PointPresenter {
   }
 
   setAborting() {
-    if (!this.#isEditMode) {
+    if (this.#isEditMode) {
+      this.#editFormComponent.shake(() =>
+        this.#editFormComponent.updateElement({
+          isSaving: false,
+          isDeleting: false,
+        }),
+      );
       return;
     }
 
-    this.#editFormComponent.shake(() => this.#editFormComponent.updateElement({
-      isSaving: false,
-      isDeleting: false,
-    }));
+    this.#pointComponent.shake();
   }
 
   destroy() {
@@ -139,11 +142,10 @@ export default class PointPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange(
-      UserAction.UPDATE_POINT,
-      UpdateType.PATCH,
-      {...this.#point, isFavorite: !this.#point.isFavorite},
-    );
+    this.#handleDataChange(UserAction.UPDATE_POINT, UpdateType.PATCH, {
+      ...this.#point,
+      isFavorite: !this.#point.isFavorite,
+    });
   };
 
   #escKeyDownHandler = (evt) => {
