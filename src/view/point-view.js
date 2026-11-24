@@ -7,18 +7,18 @@ function createOffersTemplate(offers) {
     return '';
   }
 
+  const items = offers.map(
+    ({title, price}) =>
+      /* HTML */ `<li class="event__offer">
+        <span class="event__offer-title">${encodeHtml(title)}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${encodeHtml(price)}</span>
+      </li>`,
+  );
+
   return /* HTML */ `<h4 class="visually-hidden">Offers:</h4>
     <ul class="event__selected-offers">
-      ${offers
-        .map(
-          ({title, price}) =>
-            /* HTML */ `<li class="event__offer">
-              <span class="event__offer-title">${encodeHtml(title)}</span>
-              &plus;&euro;&nbsp;
-              <span class="event__offer-price">${encodeHtml(price)}</span>
-            </li>`,
-        )
-        .join('')}
+      ${items.join('')}
     </ul>`;
 }
 

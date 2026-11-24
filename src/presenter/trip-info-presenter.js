@@ -1,18 +1,20 @@
 import {getTotalPrice, getTripDates, getTripRoute, sortPointsByDate} from '../utils.js';
 
 export default class TripInfoPresenter {
-  #container = null;
+  #template = null;
+  #element = null;
   #pointsModel = null;
   #tripTitleElement = null;
   #tripDatesElement = null;
   #tripCostElement = null;
 
-  constructor({container, pointsModel}) {
-    this.#container = container;
+  constructor({template, pointsModel}) {
+    this.#template = template;
+    this.#element = template.content.firstElementChild.cloneNode(true);
     this.#pointsModel = pointsModel;
-    this.#tripTitleElement = this.#container.querySelector('.trip-info__title');
-    this.#tripDatesElement = this.#container.querySelector('.trip-info__dates');
-    this.#tripCostElement = this.#container.querySelector('.trip-info__cost-value');
+    this.#tripTitleElement = this.#element.querySelector('.trip-info__title');
+    this.#tripDatesElement = this.#element.querySelector('.trip-info__dates');
+    this.#tripCostElement = this.#element.querySelector('.trip-info__cost-value');
 
     this.#pointsModel.addObserver(this.#handlePointsModelEvent);
   }
@@ -24,9 +26,13 @@ export default class TripInfoPresenter {
   #renderTripInfo() {
     const points = this.#pointsModel.points;
 
-    this.#container.hidden = points.length === 0;
     if (points.length === 0) {
+      this.#element.remove();
       return;
+    }
+
+    if (!this.#element.isConnected) {
+      this.#template.after(this.#element);
     }
 
     const destinations = sortPointsByDate(points)

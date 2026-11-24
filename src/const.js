@@ -5,7 +5,6 @@ const DateFormat = {
   POINT_TIME: 'HH:mm',
   FORM_DATE_TIME: 'DD/MM/YY HH:mm',
   FLATPICKR_DATE_TIME: 'd/m/y H:i',
-  TRIP_DAY: 'DD',
   TRIP_DATE: 'DD MMM',
 };
 

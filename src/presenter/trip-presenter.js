@@ -19,6 +19,7 @@ import {filter, sort} from '../utils.js';
 
 export default class TripPresenter {
   #container = null;
+  #newEventButton = null;
   #pointsModel = null;
   #filterModel = null;
 
@@ -42,8 +43,9 @@ export default class TripPresenter {
   #isInitialized = false;
   #uiBlocker = new UiBlocker(TimeLimit);
 
-  constructor({container, pointsModel, filterModel}) {
+  constructor({container, newEventButton, pointsModel, filterModel}) {
     this.#container = container;
+    this.#newEventButton = newEventButton;
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
 
@@ -75,8 +77,7 @@ export default class TripPresenter {
     }
 
     this.#filterModel.filter = FilterType.EVERYTHING;
-    this.#currentSortType = SortType.DAY;
-    this.#handleModeChange();
+    this.#newEventButton.disabled = true;
 
     if (this.#pointListComponent === null) {
       remove(this.#emptyListComponent);
@@ -192,10 +193,7 @@ export default class TripPresenter {
   #handleModeChange = () => {
     this.#pointPresenters.forEach((pointPresenter) => pointPresenter.resetView());
 
-    if (this.#newPointPresenter !== null) {
-      this.#newPointPresenter.destroy();
-      this.#newPointPresenter = null;
-    }
+    this.#handleNewPointFormClose();
   };
 
   #handleNewPointFormClose = () => {
@@ -205,6 +203,13 @@ export default class TripPresenter {
 
     this.#newPointPresenter.destroy();
     this.#newPointPresenter = null;
+    this.#newEventButton.disabled = false;
+
+    if (this.#pointsModel.points.length === 0) {
+      remove(this.#pointListComponent);
+      this.#pointListComponent = null;
+      this.#showMessage(EmptyListMessage[FilterType.EVERYTHING]);
+    }
   };
 
   #handlePointsModelEvent = (updateType, data) => {

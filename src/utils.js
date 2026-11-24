@@ -79,10 +79,6 @@ function getTripDates(points) {
     return startDate.format(DateFormat.TRIP_DATE);
   }
 
-  if (startDate.isSame(endDate, 'month')) {
-    return `${startDate.format(DateFormat.TRIP_DAY)} — ${endDate.format(DateFormat.TRIP_DATE)}`;
-  }
-
   return `${startDate.format(DateFormat.TRIP_DATE)} — ${endDate.format(DateFormat.TRIP_DATE)}`;
 }
 

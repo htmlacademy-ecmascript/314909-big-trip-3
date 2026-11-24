@@ -7,11 +7,3 @@ env:
   browser: true
 
 extends: 'htmlacademy/vanilla'
-
-rules:
-  indent: off
-  quotes:
-    - error
-    - single
-    - avoidEscape: true
-      allowTemplateLiterals: true

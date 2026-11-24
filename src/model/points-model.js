@@ -54,7 +54,7 @@ export default class PointsModel extends Observable {
     const pointIndex = this.#points.findIndex(({id}) => id === updatedPoint.id);
 
     if (pointIndex === -1) {
-      throw new Error("Can't update unexisting point");
+      throw new Error('Cannot update a point that does not exist');
     }
 
     const response = await this.#apiService.updatePoint(PointsModel.adaptToServer(updatedPoint));
@@ -77,7 +77,7 @@ export default class PointsModel extends Observable {
     const pointIndex = this.#points.findIndex(({id}) => id === point.id);
 
     if (pointIndex === -1) {
-      throw new Error("Can't delete unexisting point");
+      throw new Error('Cannot delete a point that does not exist');
     }
 
     await this.#apiService.deletePoint(point);

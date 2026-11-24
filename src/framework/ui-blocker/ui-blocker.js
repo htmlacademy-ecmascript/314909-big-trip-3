@@ -38,6 +38,9 @@ export default class UiBlocker {
 
   /** Метод для блокировки интерфейса */
   block() {
+    clearTimeout(this.#timerId);
+    document.addEventListener('keydown', this.#preventInteraction, true);
+    document.addEventListener('click', this.#preventInteraction, true);
     this.#startTime = Date.now();
     this.#timerId = setTimeout(() => {
       this.#activateBlocking();
@@ -46,11 +49,14 @@ export default class UiBlocker {
 
   /** Метод для разблокировки интерфейса */
   unblock() {
+    document.removeEventListener('keydown', this.#preventInteraction, true);
+    document.removeEventListener('click', this.#preventInteraction, true);
     this.#endTime = Date.now();
     const duration = this.#endTime - this.#startTime;
 
     if (duration < this.#lowerLimit) {
       clearTimeout(this.#timerId);
+      this.#disactivateBlocking();
       return;
     }
 
@@ -59,22 +65,21 @@ export default class UiBlocker {
       return;
     }
 
-    setTimeout(this.#disactivateBlocking, this.#upperLimit - duration);
+    this.#timerId = setTimeout(this.#disactivateBlocking, this.#upperLimit - duration);
   }
 
   /** Метод, добавляющий CSS-класс и обработчик */
   #activateBlocking = () => {
     this.#element.classList.add('ui-blocker--on');
-    document.addEventListener('keydown', this.#documentKeydownHandler);
   };
 
   /** Метод, убирающий CSS-класс и обработчик */
   #disactivateBlocking = () => {
     this.#element.classList.remove('ui-blocker--on');
-    document.removeEventListener('keydown', this.#documentKeydownHandler);
   };
 
-  #documentKeydownHandler = (evt) => {
+  #preventInteraction = (evt) => {
     evt.preventDefault();
+    evt.stopImmediatePropagation();
   };
 }

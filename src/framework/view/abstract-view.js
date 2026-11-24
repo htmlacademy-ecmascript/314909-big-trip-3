@@ -16,7 +16,7 @@ export default class AbstractView {
 
   constructor() {
     if (new.target === AbstractView) {
-      throw new Error("Can't instantiate AbstractView, only concrete one.");
+      throw new Error('Only concrete subclasses of AbstractView can be instantiated.');
     }
   }
 
@@ -51,9 +51,10 @@ export default class AbstractView {
    * @param {shakeCallback} [callback] Функция, которая будет вызвана после завершения анимации
    */
   shake(callback) {
-    this.element.classList.add(SHAKE_CLASS_NAME);
+    const element = this.element;
+    element.classList.add(SHAKE_CLASS_NAME);
     setTimeout(() => {
-      this.element.classList.remove(SHAKE_CLASS_NAME);
+      element.classList.remove(SHAKE_CLASS_NAME);
       callback?.();
     }, SHAKE_ANIMATION_TIMEOUT);
   }

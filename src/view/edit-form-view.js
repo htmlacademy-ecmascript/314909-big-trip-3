@@ -55,32 +55,30 @@ function createOffersTemplate(offers, selectedOfferIds, isDisabled) {
     return '';
   }
 
+  const selectors = offers.map(
+    ({id, title, price}) =>
+      /* HTML */ `<div class="event__offer-selector">
+        <input
+          class="event__offer-checkbox  visually-hidden"
+          id="event-offer-${encodeHtml(id)}"
+          type="checkbox"
+          name="event-offer-${encodeHtml(id)}"
+          data-offer-id="${encodeHtml(id)}"
+          ${selectedOfferIds.includes(id) ? 'checked' : ''}
+          ${isDisabled ? 'disabled' : ''}
+        />
+        <label class="event__offer-label" for="event-offer-${encodeHtml(id)}">
+          <span class="event__offer-title">${encodeHtml(title)}</span>
+          &plus;&euro;&nbsp;
+          <span class="event__offer-price">${encodeHtml(price)}</span>
+        </label>
+      </div>`,
+  );
+
   return /* HTML */ `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
-    <div class="event__available-offers">
-      ${offers
-        .map(
-          ({id, title, price}) =>
-            /* HTML */ `<div class="event__offer-selector">
-              <input
-                class="event__offer-checkbox  visually-hidden"
-                id="event-offer-${encodeHtml(id)}"
-                type="checkbox"
-                name="event-offer-${encodeHtml(id)}"
-                data-offer-id="${encodeHtml(id)}"
-                ${selectedOfferIds.includes(id) ? 'checked' : ''}
-                ${isDisabled ? 'disabled' : ''}
-              />
-              <label class="event__offer-label" for="event-offer-${encodeHtml(id)}">
-                <span class="event__offer-title">${encodeHtml(title)}</span>
-                &plus;&euro;&nbsp;
-                <span class="event__offer-price">${encodeHtml(price)}</span>
-              </label>
-            </div>`,
-        )
-        .join('')}
-    </div>
+    <div class="event__available-offers">${selectors.join('')}</div>
   </section>`;
 }
 
@@ -121,7 +119,7 @@ function createRollupButtonTemplate(isNewPoint, isDisabled) {
     return '';
   }
 
-  return /* HTML */ `<button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
+  return /* HTML */ `<button class="event__rollup-btn" type="button" aria-disabled="${isDisabled}">
     <span class="visually-hidden">Open event</span>
   </button>`;
 }
@@ -233,7 +231,7 @@ function createEditFormTemplate(point, destinations, offersByType) {
         <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>
           ${isSaving ? 'Saving...' : 'Save'}
         </button>
-        <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>
+        <button class="event__reset-btn" type="reset" aria-disabled="${isDisabled}">
           ${getResetButtonText(isNewPoint, isDeleting)}
         </button>
         ${createRollupButtonTemplate(isNewPoint, isDisabled)}
@@ -272,6 +270,12 @@ export default class EditFormView extends AbstractStatefulView {
     return this._state.isSaving || this._state.isDeleting;
   }
 
+  removeElement() {
+    this.#datePickers.forEach((datePicker) => datePicker.destroy());
+    this.#datePickers = [];
+    super.removeElement();
+  }
+
   _restoreHandlers() {
     this.#setEventListeners();
     this.#setDatePickers();
@@ -288,16 +292,7 @@ export default class EditFormView extends AbstractStatefulView {
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
 
-    const formData = new FormData(evt.target);
-    const selectedOffers = [...this.element.querySelectorAll('.event__offer-checkbox:checked')].map(
-      (offerInput) => offerInput.dataset.offerId,
-    );
-
-    this.#handleFormSubmit({
-      ...this._state,
-      basePrice: Number(formData.get('event-price')),
-      offers: selectedOffers,
-    });
+    this.#handleFormSubmit({...this._state, basePrice: Number(this._state.basePrice)});
   };
 
   #rollupButtonClickHandler = (evt) => {
@@ -329,6 +324,15 @@ export default class EditFormView extends AbstractStatefulView {
     evt.target.setCustomValidity(isDestinationValid ? '' : 'Select a destination from the list');
   };
 
+  #priceInputHandler = (evt) => {
+    this._setState({basePrice: evt.target.value});
+  };
+
+  #offersChangeHandler = () => {
+    const selectedOffers = [...this.element.querySelectorAll('.event__offer-checkbox:checked')];
+    this._setState({offers: selectedOffers.map((input) => input.dataset.offerId)});
+  };
+
   #dateFromChangeHandler = ([selectedDate]) => {
     const dateFrom = selectedDate?.toISOString() ?? null;
     const endDatePicker = this.#datePickers[END_DATE_PICKER_INDEX];
@@ -358,11 +362,11 @@ export default class EditFormView extends AbstractStatefulView {
       .forEach((typeInput) => typeInput.addEventListener('change', this.#typeChangeHandler));
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationInputHandler);
+    this.element.querySelector('.event__input--price').addEventListener('input', this.#priceInputHandler);
+    this.element.querySelector('.event__available-offers')?.addEventListener('change', this.#offersChangeHandler);
   }
 
   #setDatePickers() {
-    this.#datePickers.forEach((datePicker) => datePicker.destroy());
-
     const commonOptions = {
       enableTime: true,
       dateFormat: DateFormat.FLATPICKR_DATE_TIME,

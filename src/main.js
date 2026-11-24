@@ -7,7 +7,7 @@ import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
 import BigTripApiService from './api/big-trip-api-service.js';
 
-const END_POINT = 'https://24.objects.htmlacademy.pro/big-trip/';
+const END_POINT = 'https://24.objects.htmlacademy.pro/big-trip';
 const AUTHORIZATION = 'Basic c7v2n5k9m4q8x1z6';
 
 dayjs.extend(duration);
@@ -15,13 +15,14 @@ dayjs.extend(duration);
 const filterContainer = document.querySelector('.trip-controls__filters');
 const tripEventsContainer = document.querySelector('.trip-events');
 const newEventButton = document.querySelector('.trip-main__event-add-btn');
-const tripInfoContainer = document.querySelector('.trip-main__trip-info');
+const tripInfoTemplate = document.querySelector('#trip-info-template');
 
 const apiService = new BigTripApiService(END_POINT, AUTHORIZATION);
 const pointsModel = new PointsModel({apiService});
 const filterModel = new FilterModel();
 const tripPresenter = new TripPresenter({
   container: tripEventsContainer,
+  newEventButton,
   pointsModel,
   filterModel,
 });
@@ -31,7 +32,7 @@ const filterPresenter = new FilterPresenter({
   filterModel,
 });
 const tripInfoPresenter = new TripInfoPresenter({
-  container: tripInfoContainer,
+  template: tripInfoTemplate,
   pointsModel,
 });
 
