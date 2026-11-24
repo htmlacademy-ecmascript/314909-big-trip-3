@@ -7,9 +7,9 @@ import {generateSort} from '../mock/sort.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import {
   EmptyListMessage,
-  FailedLoadingMessage,
+  FAILED_LOADING_MESSAGE,
   FilterType,
-  LoadingMessage,
+  LOADING_MESSAGE,
   SortType,
   TimeLimit,
   UpdateType,
@@ -64,11 +64,11 @@ export default class TripPresenter {
   }
 
   showLoading() {
-    this.#showMessage(LoadingMessage);
+    this.#showMessage(LOADING_MESSAGE);
   }
 
   showLoadingError() {
-    this.#showMessage(FailedLoadingMessage);
+    this.#showMessage(FAILED_LOADING_MESSAGE);
   }
 
   createPoint() {
@@ -77,7 +77,7 @@ export default class TripPresenter {
     }
 
     this.#filterModel.filter = FilterType.EVERYTHING;
-    this.#newEventButton.disabled = true;
+    this.#newEventButton.setDisabled(true);
 
     if (this.#pointListComponent === null) {
       remove(this.#emptyListComponent);
@@ -132,20 +132,19 @@ export default class TripPresenter {
   }
 
   #clearPointList() {
-    this.#handleModeChange();
-    this.#pointListComponent.element.replaceChildren();
+    this.#handleNewPointFormClose();
+    this.#pointPresenters.forEach((pointPresenter) => pointPresenter.destroy());
     this.#pointPresenters.clear();
   }
 
   #clearTrip() {
-    this.#handleModeChange();
+    this.#clearPointList();
     remove(this.#sortComponent);
     remove(this.#pointListComponent);
     remove(this.#emptyListComponent);
     this.#sortComponent = null;
     this.#pointListComponent = null;
     this.#emptyListComponent = null;
-    this.#pointPresenters.clear();
   }
 
   #renderPoint(point) {
@@ -203,7 +202,7 @@ export default class TripPresenter {
 
     this.#newPointPresenter.destroy();
     this.#newPointPresenter = null;
-    this.#newEventButton.disabled = false;
+    this.#newEventButton.setDisabled(false);
 
     if (this.#pointsModel.points.length === 0) {
       remove(this.#pointListComponent);

@@ -1,20 +1,13 @@
 import {getTotalPrice, getTripDates, getTripRoute, sortPointsByDate} from '../utils.js';
+import TripInfoView from '../view/trip-info-view.js';
 
 export default class TripInfoPresenter {
-  #template = null;
-  #element = null;
+  #tripInfoView = null;
   #pointsModel = null;
-  #tripTitleElement = null;
-  #tripDatesElement = null;
-  #tripCostElement = null;
 
   constructor({template, pointsModel}) {
-    this.#template = template;
-    this.#element = template.content.firstElementChild.cloneNode(true);
+    this.#tripInfoView = new TripInfoView(template);
     this.#pointsModel = pointsModel;
-    this.#tripTitleElement = this.#element.querySelector('.trip-info__title');
-    this.#tripDatesElement = this.#element.querySelector('.trip-info__dates');
-    this.#tripCostElement = this.#element.querySelector('.trip-info__cost-value');
 
     this.#pointsModel.addObserver(this.#handlePointsModelEvent);
   }
@@ -27,21 +20,19 @@ export default class TripInfoPresenter {
     const points = this.#pointsModel.points;
 
     if (points.length === 0) {
-      this.#element.remove();
+      this.#tripInfoView.hide();
       return;
-    }
-
-    if (!this.#element.isConnected) {
-      this.#template.after(this.#element);
     }
 
     const destinations = sortPointsByDate(points)
       .map((point) => this.#pointsModel.getDestinationById(point.destination)?.name)
       .filter(Boolean);
 
-    this.#tripTitleElement.textContent = getTripRoute(destinations);
-    this.#tripDatesElement.textContent = getTripDates(points);
-    this.#tripCostElement.textContent = getTotalPrice(points, this.#pointsModel.offers);
+    this.#tripInfoView.show({
+      title: getTripRoute(destinations),
+      dates: getTripDates(points),
+      cost: getTotalPrice(points, this.#pointsModel.offers),
+    });
   }
 
   #handlePointsModelEvent = () => {

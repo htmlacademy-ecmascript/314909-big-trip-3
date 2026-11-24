@@ -132,6 +132,107 @@ function getResetButtonText(isNewPoint, isDeleting) {
   return isNewPoint ? 'Cancel' : 'Delete';
 }
 
+function createTypeFieldTemplate(validPointType, isDisabled) {
+  return /* HTML */ `<div class="event__type-wrapper">
+    <label class="event__type  event__type-btn" for="event-type-toggle-1">
+      <span class="visually-hidden">Choose event type</span>
+      <img
+        class="event__type-icon"
+        width="17"
+        height="17"
+        src="img/icons/${validPointType}.png"
+        alt="Event type icon"
+      />
+    </label>
+    <input
+      class="event__type-toggle  visually-hidden"
+      id="event-type-toggle-1"
+      type="checkbox"
+      ${isDisabled ? 'disabled' : ''}
+    />
+
+    <div class="event__type-list">
+      <fieldset class="event__type-group">
+        <legend class="visually-hidden">Event type</legend>
+        ${createTypeListTemplate(validPointType, isDisabled)}
+      </fieldset>
+    </div>
+  </div>`;
+}
+
+function createDestinationFieldTemplate(validPointType, destination, destinations, isDisabled) {
+  return /* HTML */ `<div class="event__field-group  event__field-group--destination">
+    <label class="event__label  event__type-output" for="event-destination-1"> ${capitalize(validPointType)} </label>
+    <input
+      class="event__input  event__input--destination"
+      id="event-destination-1"
+      type="text"
+      name="event-destination"
+      value="${encodeHtml(destination?.name)}"
+      list="destination-list-1"
+      required
+      ${isDisabled ? 'disabled' : ''}
+    />
+    <datalist id="destination-list-1">${createDestinationListTemplate(destinations)}</datalist>
+  </div>`;
+}
+
+function createDateFieldsTemplate(dateFrom, dateTo, isDisabled) {
+  return /* HTML */ `<div class="event__field-group  event__field-group--time">
+    <label class="visually-hidden" for="event-start-time-1">From</label>
+    <input
+      class="event__input  event__input--time"
+      id="event-start-time-1"
+      type="text"
+      name="event-start-time"
+      value="${formatDate(dateFrom, DateFormat.FORM_DATE_TIME)}"
+      required
+      ${isDisabled ? 'disabled' : ''}
+    />
+    &mdash;
+    <label class="visually-hidden" for="event-end-time-1">To</label>
+    <input
+      class="event__input  event__input--time"
+      id="event-end-time-1"
+      type="text"
+      name="event-end-time"
+      value="${formatDate(dateTo, DateFormat.FORM_DATE_TIME)}"
+      required
+      ${isDisabled ? 'disabled' : ''}
+    />
+  </div>`;
+}
+
+function createPriceFieldTemplate(basePrice, isDisabled) {
+  return /* HTML */ `<div class="event__field-group  event__field-group--price">
+    <label class="event__label" for="event-price-1">
+      <span class="visually-hidden">Price</span>
+      &euro;
+    </label>
+    <input
+      class="event__input  event__input--price"
+      id="event-price-1"
+      type="number"
+      name="event-price"
+      value="${encodeHtml(basePrice)}"
+      min="1"
+      step="1"
+      required
+      ${isDisabled ? 'disabled' : ''}
+    />
+  </div>`;
+}
+
+function createFormButtonsTemplate(isNewPoint, isSaving, isDeleting, isDisabled) {
+  return /* HTML */ `<button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>
+      ${isSaving ? 'Saving...' : 'Save'}
+    </button>
+    <button class="event__reset-btn" type="reset" aria-disabled="${isDisabled}">
+      ${getResetButtonText(isNewPoint, isDeleting)}
+    </button>
+    ${createRollupButtonTemplate(isNewPoint, isDisabled)}`;
+}
+
 function createEditFormTemplate(point, destinations, offersByType) {
   const {type, dateFrom, dateTo, basePrice, isSaving = false, isDeleting = false} = point;
   const validPointType = getValidPointType(type);
@@ -143,98 +244,10 @@ function createEditFormTemplate(point, destinations, offersByType) {
   return /* HTML */ `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post" aria-busy="${isDisabled}">
       <header class="event__header">
-        <div class="event__type-wrapper">
-          <label class="event__type  event__type-btn" for="event-type-toggle-1">
-            <span class="visually-hidden">Choose event type</span>
-            <img
-              class="event__type-icon"
-              width="17"
-              height="17"
-              src="img/icons/${validPointType}.png"
-              alt="Event type icon"
-            />
-          </label>
-          <input
-            class="event__type-toggle  visually-hidden"
-            id="event-type-toggle-1"
-            type="checkbox"
-            ${isDisabled ? 'disabled' : ''}
-          />
-
-          <div class="event__type-list">
-            <fieldset class="event__type-group">
-              <legend class="visually-hidden">Event type</legend>
-              ${createTypeListTemplate(validPointType, isDisabled)}
-            </fieldset>
-          </div>
-        </div>
-
-        <div class="event__field-group  event__field-group--destination">
-          <label class="event__label  event__type-output" for="event-destination-1">
-            ${capitalize(validPointType)}
-          </label>
-          <input
-            class="event__input  event__input--destination"
-            id="event-destination-1"
-            type="text"
-            name="event-destination"
-            value="${encodeHtml(destination?.name)}"
-            list="destination-list-1"
-            required
-            ${isDisabled ? 'disabled' : ''}
-          />
-          <datalist id="destination-list-1">${createDestinationListTemplate(destinations)}</datalist>
-        </div>
-
-        <div class="event__field-group  event__field-group--time">
-          <label class="visually-hidden" for="event-start-time-1">From</label>
-          <input
-            class="event__input  event__input--time"
-            id="event-start-time-1"
-            type="text"
-            name="event-start-time"
-            value="${formatDate(dateFrom, DateFormat.FORM_DATE_TIME)}"
-            required
-            ${isDisabled ? 'disabled' : ''}
-          />
-          &mdash;
-          <label class="visually-hidden" for="event-end-time-1">To</label>
-          <input
-            class="event__input  event__input--time"
-            id="event-end-time-1"
-            type="text"
-            name="event-end-time"
-            value="${formatDate(dateTo, DateFormat.FORM_DATE_TIME)}"
-            required
-            ${isDisabled ? 'disabled' : ''}
-          />
-        </div>
-
-        <div class="event__field-group  event__field-group--price">
-          <label class="event__label" for="event-price-1">
-            <span class="visually-hidden">Price</span>
-            &euro;
-          </label>
-          <input
-            class="event__input  event__input--price"
-            id="event-price-1"
-            type="number"
-            name="event-price"
-            value="${encodeHtml(basePrice)}"
-            min="1"
-            step="1"
-            required
-            ${isDisabled ? 'disabled' : ''}
-          />
-        </div>
-
-        <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>
-          ${isSaving ? 'Saving...' : 'Save'}
-        </button>
-        <button class="event__reset-btn" type="reset" aria-disabled="${isDisabled}">
-          ${getResetButtonText(isNewPoint, isDeleting)}
-        </button>
-        ${createRollupButtonTemplate(isNewPoint, isDisabled)}
+        ${createTypeFieldTemplate(validPointType, isDisabled)}
+        ${createDestinationFieldTemplate(validPointType, destination, destinations, isDisabled)}
+        ${createDateFieldsTemplate(dateFrom, dateTo, isDisabled)} ${createPriceFieldTemplate(basePrice, isDisabled)}
+        ${createFormButtonsTemplate(isNewPoint, isSaving, isDeleting, isDisabled)}
       </header>
       ${createDetailsTemplate(createOffersTemplate(offers, point.offers, isDisabled), createDestinationTemplate(destination))}
     </form>
@@ -291,6 +304,13 @@ export default class EditFormView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
+
+    const emptyDatePicker = this.#datePickers.find((picker) => picker.selectedDates.length === 0);
+    if (emptyDatePicker) {
+      emptyDatePicker.input.focus();
+      emptyDatePicker.open();
+      return;
+    }
 
     this.#handleFormSubmit({...this._state, basePrice: Number(this._state.basePrice)});
   };

@@ -6,6 +6,7 @@ import TripInfoPresenter from './presenter/trip-info-presenter.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
 import BigTripApiService from './api/big-trip-api-service.js';
+import NewEventButtonView from './view/new-event-button-view.js';
 
 const END_POINT = 'https://24.objects.htmlacademy.pro/big-trip';
 const AUTHORIZATION = 'Basic c7v2n5k9m4q8x1z6';
@@ -14,7 +15,7 @@ dayjs.extend(duration);
 
 const filterContainer = document.querySelector('.trip-controls__filters');
 const tripEventsContainer = document.querySelector('.trip-events');
-const newEventButton = document.querySelector('.trip-main__event-add-btn');
+const newEventButton = new NewEventButtonView(document.querySelector('.trip-main__event-add-btn'));
 const tripInfoTemplate = document.querySelector('#trip-info-template');
 
 const apiService = new BigTripApiService(END_POINT, AUTHORIZATION);
@@ -36,7 +37,7 @@ const tripInfoPresenter = new TripInfoPresenter({
   pointsModel,
 });
 
-newEventButton.addEventListener('click', () => tripPresenter.createPoint());
+newEventButton.setClickHandler(() => tripPresenter.createPoint());
 
 tripPresenter.showLoading();
 
@@ -47,7 +48,7 @@ async function bootstrap() {
     filterPresenter.init();
     tripInfoPresenter.init();
     tripPresenter.init();
-    newEventButton.disabled = false;
+    newEventButton.setDisabled(false);
   } catch {
     tripPresenter.showLoadingError();
   }
